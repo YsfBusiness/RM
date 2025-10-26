@@ -1,4 +1,4 @@
--- Residence Massacre The Bunker By Frank
+-- Residence Massacre The Bunker By Nashu
 
 if game.PlaceId ~= 100255403764514 then
     warn("Please execute this script in the Residence Massacre The Bunker.")
@@ -277,5 +277,5 @@ task.spawn(function()
     JerryCan_ESP()
     ProtectPlayer()
 
-    print("<> Loaded Residence Massacre The Bunker Script By Frank <>")
+    print("<> Loaded Residence Massacre The Bunker Script By Nashu <>")
 end)
