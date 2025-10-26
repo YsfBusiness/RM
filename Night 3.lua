@@ -1,5 +1,10 @@
 -- Residence Massacre Night 3 By Frank
 
+if game.PlaceId ~= 140260816701736 then
+    warn("Please execute this script in the Residence Massacre Night 3.")
+    return
+end
+
 -- Services --
 local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
@@ -36,9 +41,10 @@ local function Clock()
 
     Lighting:GetPropertyChangedSignal("TimeOfDay"):Connect(function()
         local Clock = tostring(Lighting.TimeOfDay:sub(1,5)) -- Take the Hour and Minutes
-        print(Clock)
         ExactTime_Label.Text = Clock
     end)
+
+    print("Clock Succesful")
 end
 
 -- --
@@ -62,6 +68,8 @@ local function BrightLighting()
             Atmosphere.Color = Color3.fromRGB(255, 255, 255)
         end
     end)
+
+    print("InfBright Succesful")
 end
 
 -- --
@@ -80,6 +88,8 @@ local function InfSprint()
             Sprint_Code.Stam.Value = Sprint_Code.Stam:GetAttribute("Max")
         end)
     end
+
+    print("InfSprint Succesful")
 end
 
 -- --
@@ -94,6 +104,8 @@ local function Deform_Anticheat()
     if Anticheat then
         Anticheat.Parent = game:GetService("Debris") -- Remove
     end
+
+    print("Anticheat succesful")
 end
 
 -- --
@@ -107,6 +119,8 @@ local function CreateESP(Object, Color)
         Viewer.FillColor = Color
         Viewer.Parent = Object
     end
+
+    print("CreateESP Succesful")
 end
 
 local function Mutant_ESP()
@@ -117,6 +131,8 @@ local function Mutant_ESP()
             CreateESP(Child, Color3.fromRGB(0, 255, 0))
         end
     end)
+
+    print("Mutant_ESP Succesful")
 end
 
 local function JerryCan_ESP()
@@ -127,6 +143,104 @@ local function JerryCan_ESP()
     for _, v in pairs(JerryCans:GetChildren()) do
         CreateESP(v, Color3.fromRGB(255, 0, 0))
     end
+
+    print("JerryCan_ESP Succesful")
+end
+
+-- --
+
+-- Protect Player --
+local Protect_M
+
+local SafeSpot_Locations = {
+    Vector3.new(-174.568, 4.275, -144.146),
+    Vector3.new(145.444, 4.2, -213.325),
+    Vector3.new(65.616, 4.2, -3.609),
+    Vector3.new(55.907, 4.275, 210.202),
+    Vector3.new(-103.215, 4.275, 271.189),
+    Vector3.new(252.637, 4.275, 207.016),
+}
+
+local function InstanceSpot(Pos)
+	local Spot = Instance.new("Part")
+	Spot.Name = "SafeSpot"
+	Spot.CanCollide = false
+	Spot.Size = Vector3.new(1, 1, 1)
+	Spot.Anchored = true
+	Spot.Transparency = 0.5
+	Spot.Position = Pos
+	Spot.Parent = workspace.Safe_Spots or nil
+end
+
+local function CreateSafeSpots()
+	if not workspace:FindFirstChild("Safe_Spots") then
+        print("SAFE SPOTS DOESNT EXIST")
+		local Safe_Spots = Instance.new("Folder")
+		Safe_Spots.Name = "Safe_Spots"
+		Safe_Spots.Parent = workspace
+
+		for _, v in pairs(SafeSpot_Locations) do
+			InstanceSpot(v)
+		end
+	end
+end
+
+local function GetMutant()
+	return workspace:FindFirstChild("Mutant")
+end
+
+local function CalculateDistance(a, b)
+	return (a - b).Magnitude
+end
+
+local function GetFarthestSafeSpot(mutantPos)
+	local FarthestSpot = nil
+	local MaxDistance = -math.huge
+
+	for _, spot in pairs(workspace.Safe_Spots:GetChildren()) do
+		local Distance = CalculateDistance(spot.Position, mutantPos)
+
+		if Distance > MaxDistance then
+			MaxDistance = Distance
+			FarthestSpot = spot
+		end
+	end
+
+	return FarthestSpot
+end
+
+local function TakeToSafeSpot(player)
+	local Mutant = GetMutant()
+	if not Mutant then return end
+
+	if not workspace:FindFirstChild("Safe_Spots") then
+		CreateSafeSpots()
+	end
+
+	local SafeSpot = GetFarthestSafeSpot(Mutant.PrimaryPart.Position)
+
+	if SafeSpot and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+		player.Character:MoveTo(SafeSpot.Position)
+	end
+end
+
+local function ProtectPlayer()
+    Protect_M = RunService.Heartbeat:Connect(function()
+        local Mutant = GetMutant()
+	    local Plr = Players.LocalPlayer
+	    local Chr = Plr.Character or Plr.CharacterAdded:Wait()
+	    local RootPart = Chr:WaitForChild("HumanoidRootPart")
+
+        if Mutant and RootPart then
+		    local Distance = CalculateDistance(Mutant.PrimaryPart.Position, RootPart.Position)
+            
+		    if Distance < 20 then
+			    TakeToSafeSpot(Plr)
+		    end
+	    end
+    end)
+
+    print("ProtectPlayer Succesful")
 end
 
 -- --
@@ -139,4 +253,7 @@ task.spawn(function()
     Deform_Anticheat()
     Mutant_ESP()
     JerryCan_ESP()
+    ProtectPlayer()
+
+    print("<> Loaded Residence Massacre Night 3 Script By Frank <>")
 end)
